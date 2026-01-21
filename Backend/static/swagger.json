@@ -1,0 +1,280 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AI Tokenizer API",
+    "description": "A comprehensive API for tokenizing text with multiple strategies and detailed analytics",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@tokenizer.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Tokenization",
+      "description": "Text tokenization endpoints"
+    },
+    {
+      "name": "Vocabulary",
+      "description": "Vocabulary management"
+    },
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "API Information",
+        "description": "Get information about available endpoints",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {"type": "string"},
+                    "version": {"type": "string"},
+                    "endpoints": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tokenize": {
+      "post": {
+        "tags": ["Tokenization"],
+        "summary": "Tokenize Text",
+        "description": "Tokenize input text and return detailed token information",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "example": "Hello, how are you doing today?"
+                  },
+                  "model": {
+                    "type": "string",
+                    "default": "gpt-4",
+                    "example": "gpt-4"
+                  },
+                  "strategy": {
+                    "type": "string",
+                    "enum": ["default", "word", "char"],
+                    "default": "default",
+                    "example": "default"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful tokenization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "tokens": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {"type": "string"},
+                          "id": {"type": "integer"},
+                          "type": {"type": "string"}
+                        }
+                      }
+                    },
+                    "token_ids": {
+                      "type": "array",
+                      "items": {"type": "integer"}
+                    },
+                    "token_count": {"type": "integer"},
+                    "char_count": {"type": "integer"},
+                    "model": {"type": "string"},
+                    "strategy": {"type": "string"},
+                    "vocab_size": {"type": "integer"},
+                    "timestamp": {"type": "string"}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/count": {
+      "post": {
+        "tags": ["Tokenization"],
+        "summary": "Count Tokens",
+        "description": "Count tokens in text without returning full tokenization",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "example": "Hello world!"
+                  },
+                  "strategy": {
+                    "type": "string",
+                    "enum": ["default", "word", "char"],
+                    "default": "default"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful token count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "token_count": {"type": "integer"},
+                    "char_count": {"type": "integer"},
+                    "strategy": {"type": "string"},
+                    "timestamp": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/batch": {
+      "post": {
+        "tags": ["Tokenization"],
+        "summary": "Batch Tokenize",
+        "description": "Tokenize multiple texts in one request",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["texts"],
+                "properties": {
+                  "texts": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "example": ["Hello world", "How are you?", "AI is amazing!"]
+                  },
+                  "strategy": {
+                    "type": "string",
+                    "enum": ["default", "word", "char"],
+                    "default": "default"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful batch tokenization"
+          }
+        }
+      }
+    },
+    "/api/vocab": {
+      "get": {
+        "tags": ["Vocabulary"],
+        "summary": "Get Vocabulary",
+        "description": "Get current vocabulary statistics",
+        "responses": {
+          "200": {
+            "description": "Vocabulary information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "vocab_size": {"type": "integer"},
+                    "vocabulary": {"type": "object"},
+                    "timestamp": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vocab/reset": {
+      "post": {
+        "tags": ["Vocabulary"],
+        "summary": "Reset Vocabulary",
+        "description": "Reset the tokenizer vocabulary",
+        "responses": {
+          "200": {
+            "description": "Vocabulary reset successful"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health Check",
+        "description": "Check if the API is running",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {"type": "string"},
+                    "service": {"type": "string"},
+                    "version": {"type": "string"},
+                    "timestamp": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
